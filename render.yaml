@@ -3,7 +3,7 @@ services:
     name: energy-web
     runtime: python
     plan: free
-    buildCommand: apt-get install -y fonts-ipafont-gothic fonts-ipafont-mincho && pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false
     envVars:
       - key: PYTHON_VERSION

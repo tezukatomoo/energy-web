@@ -16,6 +16,7 @@ from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 
 
@@ -393,24 +394,30 @@ def build_pdf_report(
         bottomMargin=20*mm
     )
     
-    # 日本語フォント設定
-    try:
-        pdfmetrics.registerFont(TTFont('Japanese', 'C:\\Windows\\Fonts\\msgothic.ttc', subfontIndex=0))
-        font_name = 'Japanese'
-    except:
+    # 日本語フォント設定（OS別TTFを順に試し、最後はreportlab内蔵CIDフォントに必ずフォールバック）
+    font_name = None
+    for ttf_path, idx in [
+        ('C:\\Windows\\Fonts\\msgothic.ttc', 0),               # Windows
+        ('/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc', 0),  # macOS
+        ('/usr/share/fonts/truetype/fonts-japanese-gothic.ttf', None),
+        ('/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf', None),
+    ]:
         try:
-            pdfmetrics.registerFont(TTFont('Japanese', '/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc', subfontIndex=0))
+            if idx is not None:
+                pdfmetrics.registerFont(TTFont('Japanese', ttf_path, subfontIndex=idx))
+            else:
+                pdfmetrics.registerFont(TTFont('Japanese', ttf_path))
             font_name = 'Japanese'
-        except:
-            try:
-                pdfmetrics.registerFont(TTFont('Japanese', '/usr/share/fonts/truetype/fonts-japanese-gothic.ttf'))
-                font_name = 'Japanese'
-            except:
-                try:
-                    pdfmetrics.registerFont(TTFont('Japanese', '/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf'))
-                    font_name = 'Japanese'
-                except:
-                    font_name = 'Courier'
+            break
+        except Exception:
+            continue
+    if font_name is None:
+        # Render等の最小環境向け: reportlab同梱のCID日本語フォント（追加パッケージ不要）
+        try:
+            pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
+            font_name = 'HeiseiKakuGo-W5'
+        except Exception:
+            font_name = 'Courier'
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
