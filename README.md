@@ -36,3 +36,14 @@ streamlit run app.py
 Render の Blueprint (`render.yaml`) で自動構成。
 ※ Renderの無料枠（月750インスタンス時間／アカウント全体）を使い切ると
 サービスが停止するため、常用はローカル実行を推奨。
+
+## 同じツールの別リポジトリ（要注意）
+
+このツールは2つのリポジトリで公開されている。**`app.py` は常に両方へ同じ修正を当てること。**
+
+| リポジトリ | ホスティング | 備考 |
+|---|---|---|
+| [tezukatomoo/energy-web](https://github.com/tezukatomoo/energy-web) | Render（無料枠切れで停止中） | このリポジトリ。ローカル起動batあり |
+| [tezukatomoo/energy-kwh-app](https://github.com/tezukatomoo/energy-kwh-app) | Streamlit Community Cloud | https://energy-kwh-app-tyhbqna9bsfkuauce6qwyk.streamlit.app/ |
+
+2026-07-31 に両者の `app.py` をこのリポジトリの最新版へ統一済み。
